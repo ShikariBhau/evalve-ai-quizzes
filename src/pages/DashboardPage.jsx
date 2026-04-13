@@ -245,8 +245,199 @@ function DashboardPage() {
 
   return (
     <AppLayout>
-      {/* UI EXACT SAME — no changes */}
-      {/* (keeping rest unchanged to preserve your frontend) */}
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div>
+          <h2 className="font-heading text-3xl font-bold tracking-tight">
+            Welcome back, {profile?.name || "Student"}!
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Track your progress and continue learning
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <Card key={stat.label} className="rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.label}
+                </CardTitle>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {quickActions.map((action) => (
+            <Card
+              key={action.title}
+              className="cursor-pointer rounded-2xl transition-all duration-200 hover:shadow-soft"
+              onClick={() => navigate(action.url)}
+            >
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className={`rounded-xl p-3 ${action.color}`}>
+                  <action.icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-medium">{action.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {action.title === "Create Quiz"
+                      ? "Design custom quizzes"
+                      : action.title === "Join Quiz"
+                      ? "Take available quizzes"
+                      : "Generate AI-powered questions"}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Performance Chart */}
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Performance Trend
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      dot={{ fill: "hsl(var(--primary))" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex h-[200px] items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <Target className="mx-auto h-8 w-8 mb-2" />
+                    <p>No quiz attempts yet</p>
+                    <p className="text-sm">Complete a quiz to see your progress</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Leaderboard */}
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                Leaderboard
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {leaderboard.length > 0 ? (
+                <div className="space-y-3">
+                  {leaderboard.map((entry) => (
+                    <div
+                      key={entry.rank}
+                      className="flex items-center justify-between rounded-lg bg-muted/50 p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        {getRankIcon(entry.rank)}
+                        <span className="font-medium">{entry.name}</span>
+                      </div>
+                      <Badge variant="secondary">{entry.score}%</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-[200px] items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <Trophy className="mx-auto h-8 w-8 mb-2" />
+                    <p>No leaderboard data yet</p>
+                    <p className="text-sm">Complete quizzes to see rankings</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        {recentActivity.length > 0 && (
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentActivity.map((attempt, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          Quiz {attempts.length - index}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {attempt.quiz?.title || "Quiz"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">
+                        {attempt.totalQuestions > 0
+                          ? Math.round((attempt.score / attempt.totalQuestions) * 100)
+                          : 0}%
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {attempt.score}/{attempt.totalQuestions}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weak Topics Alert */}
+        {weakTopics.length > 0 && (
+          <Card className="rounded-2xl border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+            <CardContent className="flex items-center gap-4 p-6">
+              <AlertTriangle className="h-6 w-6 text-orange-600" />
+              <div>
+                <h3 className="font-medium text-orange-900 dark:text-orange-100">
+                  Areas for Improvement
+                </h3>
+                <p className="text-sm text-orange-700 dark:text-orange-300">
+                  Focus on: {weakTopics.join(", ")}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </AppLayout>
   );
 }

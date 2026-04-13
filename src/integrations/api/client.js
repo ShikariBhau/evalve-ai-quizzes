@@ -35,6 +35,13 @@ class APIClient {
       const error = await response.json().catch(() => ({
         error: response.statusText
       }));
+      
+      // Handle validation errors
+      if (error.errors && Array.isArray(error.errors)) {
+        const messages = error.errors.map(err => err.msg || err.message).join(', ');
+        throw new Error(messages || 'Validation failed');
+      }
+      
       throw new Error(error.error || error.message || "API request failed");
     }
     return response.json();
