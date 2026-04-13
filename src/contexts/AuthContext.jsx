@@ -26,6 +26,8 @@ function AuthProvider({ children }) {
       setUser(null);
       setProfile(null);
       apiClient.clearToken();
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -33,8 +35,9 @@ function AuthProvider({ children }) {
     if (token) {
       apiClient.setToken(token);
       fetchProfile();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
   const signUp = async (email, password, name, role) => {
     const response = await apiClient.signup(email, password, name, role);

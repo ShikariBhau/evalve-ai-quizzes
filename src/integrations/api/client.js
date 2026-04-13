@@ -24,8 +24,7 @@ class APIClient {
     const url = `${API_BASE_URL}${endpoint}`;
     const options = {
       method,
-      headers: this.getHeaders(),
-      credentials: "include"
+      headers: this.getHeaders()
     };
     if (body) {
       options.body = JSON.stringify(body);
